@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import ModeToggle from "@/components/togleMode";
-import { StoreProvider } from "@/store/StoreProvider";
-import { Toaster } from "react-hot-toast";
+import { SidebarHeader, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import SideBarHeaderComponent from "@/components/sidebar-header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,9 +28,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <StoreProvider>
-
-
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
@@ -41,13 +39,18 @@ export default function RootLayout({
       enableSystem
       disableTransitionOnChange
       >
-        <div className="absolute left-7 top-7">
-        </div>
-        <Toaster />
-            {children}
+        <SidebarProvider>
+      <AppSidebar />
+      <div className="flex-1 flex flex-col">
+        {/* Top header */}
+        <SideBarHeaderComponent />
+
+        <main className="flex-1 p-2">
+        </main>
+      </div>
+    </SidebarProvider>
  </ThemeProvider>
       </body>
     </html>
-    </StoreProvider>
   );
 }
