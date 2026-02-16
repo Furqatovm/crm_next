@@ -16,6 +16,7 @@ import { useDispatch } from "react-redux";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { useState } from "react";
 
 interface LoginFormInputs {
   email: string;
@@ -23,6 +24,7 @@ interface LoginFormInputs {
 }
 
 const LoginForm = () => {
+  const [loading, setLoading] =useState<boolean>(false)
   const router =useRouter()
   const dispatch = useDispatch();
 
@@ -34,9 +36,11 @@ const LoginForm = () => {
 
   const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
     try {
+      setLoading(true);
       const response = await login(data);
       console.log("Login muvaffaqiyatli:", response.data);
       dispatch(setUser(response.data));
+      setLoading(false)
       
       toast.success("Login muvaffaqiyatli bo'ldi")
       router.push("/")
