@@ -1,9 +1,12 @@
-import React from 'react'
+"use client"
 import ModeToggle from './togleMode'
 import { SidebarTrigger } from './ui/sidebar'
 import { Avatar, AvatarImage } from './ui/avatar'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/store/store'
 
 const SideBarHeaderComponent = () => {
+    const user =useSelector((state:RootState) =>state.authSlice.user)
   return (
     <div className='w-full  p-3 border-b  border-gray-300'>
         <div className='flex justify-between items-center w-full'>
@@ -17,11 +20,11 @@ const SideBarHeaderComponent = () => {
                 <div className='w-px h-10 bg-gray-300'></div>
                 <div className='flex gap-2 items-center'>
                     <div className='flex flex-col items-end'>
-                        <span>Azamat nimadir</span>
-                        <span>email</span>
+                        <span>{user?.first_name}</span>
+                        <span>{user?.email}</span>
                     </div>
                     <Avatar size='lg'>
-                        <AvatarImage src="https://th.bing.com/th/id/R.20659fa53ff0281dc0c93f930283426e?rik=LzVCMo473OCV7Q&pid=ImgRaw&r=0"  />
+                        <AvatarImage src={`${user?.image}`}  />
                     </Avatar>
                 </div>
             </div>

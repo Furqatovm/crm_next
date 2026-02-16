@@ -1,4 +1,3 @@
-// types.ts
 export interface LoginCredentials {
     email: string;
     password: string;
@@ -14,7 +13,7 @@ export interface LoginCredentials {
     status: string;
     active: boolean;
     is_deleted: boolean;
-    leave_history: any[]; // agar leave_historyda obyektlar bo‘lsa, alohida interface qilishingiz mumkin
+    leave_history: any[]; 
     work_date: string;
     work_end: string | null;
     createdAt: string;
@@ -31,7 +30,6 @@ export interface LoginCredentials {
   
 
 
-  // api.ts
 import axios from "axios";
 export const login = async (credentials: LoginCredentials): Promise<LoginResponse> => { 
 
