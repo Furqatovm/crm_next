@@ -4,15 +4,23 @@ import { SidebarTrigger } from './ui/sidebar'
 import { Avatar, AvatarImage } from './ui/avatar'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
+import { usePathname } from 'next/navigation'
 
 const SideBarHeaderComponent = () => {
+    const pathname =usePathname()
+
     const user =useSelector((state:RootState) =>state.authSlice.user)
   return (
-    <div className='w-full  p-3 border-b  border-gray-300'>
+    <div className='w-full dark:bg-[#171717]  p-3 border-b bg-[#fafafa] dark:border-[#171717]  border-gray-300'>
         <div className='flex justify-between items-center w-full'>
             <div className='flex gap-1 items-center'>
                 <SidebarTrigger size="lg"/>
-            <span>Menu</span>
+            <span>{
+                pathname =="/" ?
+                "Asosiy"
+                :
+                pathname.replace("/", "")
+                }</span>
             </div>
 
             <div className='flex gap-8 items-center'>

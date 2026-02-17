@@ -16,7 +16,7 @@ import { usePathname } from "next/navigation";
     const menuItems = [
         { name: "Asosiy", icon: <Home size={22} />, path: "/" },
         { name: "Managerlar", icon: <Users size={22} />, path: "/managers" },
-        { name: "Adminlar", icon: <ShieldCheck size={22} />, path: "/teachers" },
+        { name: "Adminlar", icon: <ShieldCheck size={22} />, path: "/admins" },
         { name: "Ustozlar", icon: <GraduationCap size={22} />, path: "/teachers" },
         { name: "Studentlar", icon: <BookOpen size={22} />, path: "/students" },
         { name: "Guruhlar", icon: <Layers size={22} />, path: "/groups" },
@@ -38,7 +38,7 @@ import { usePathname } from "next/navigation";
             const isActive =val.path === "/" ? pathname === "/" : pathname.startsWith(val.path);
              return <Link href={`${val.path}`} key={index} className={`
                 flex items-center gap-3 p-2 rounded-md border
-                ${isActive ? "bg-black text-white border-black" : "border-transparent hover:border-gray-400"}
+                ${isActive ? "bg-black dark:bg-transparent dark:border-gray-400  text-white border-black" : "border-transparent hover:border-gray-400"}
               `}>
                 {val.icon}
                 <span>{val.name}</span>

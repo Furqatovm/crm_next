@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { StoreProvider } from "@/store/StoreProvider";
 import { Toaster } from "react-hot-toast";
+import ModeToggle from "@/components/togleMode";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,7 +30,7 @@ export default function RootLayout({
     <StoreProvider>
 
 
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -41,6 +42,7 @@ export default function RootLayout({
       disableTransitionOnChange
       >
         <div className="absolute left-7 top-7">
+        <ModeToggle />
         </div>
         <Toaster />
             {children}

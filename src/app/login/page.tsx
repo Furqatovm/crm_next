@@ -11,12 +11,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { login } from "@/hooks/useAxios/axios";
-import { setUser } from "@/store/auth-slice";
+import { setToken, setUser } from "@/store/auth-slice";
 import { useDispatch } from "react-redux";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useState } from "react";
+import { Spinner } from "@/components/ui/spinner";
 
 interface LoginFormInputs {
   email: string;
@@ -40,6 +41,7 @@ const LoginForm = () => {
       const response = await login(data);
       console.log("Login muvaffaqiyatli:", response.data);
       dispatch(setUser(response.data));
+      dispatch(setToken(response.data?.token))
       setLoading(false)
       
       toast.success("Login muvaffaqiyatli bo'ldi")
@@ -47,6 +49,7 @@ const LoginForm = () => {
     } catch (error: any) {
       console.log("Login xatoligi:", error.message);
       toast.error(`xatolik yuz berid: ${error}`)
+      setLoading(false)
     }
   };
 
@@ -97,11 +100,12 @@ const LoginForm = () => {
         <CardFooter className="flex-col gap-2">
           <Button
             type="submit" 
+            disabled={loading}
             onClick={handleSubmit(onSubmit)}
             variant="outline"
-            className="w-full bg-primary hover:bg-primary hover:opacity-90 hover:text-white text-white cursor-pointer"
+            className="w-full bg-primary dark:bg-white   hover:bg-primary hover:opacity-90 hover:text-white text-white cursor-pointer"
           >
-            Kirish
+           {loading ?<Spinner />: "Kirish" }
           </Button>
         </CardFooter>
       </Card>
