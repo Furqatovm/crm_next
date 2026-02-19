@@ -18,7 +18,7 @@ import { MoreHorizontalIcon } from "lucide-react"
 import {  useState } from "react"
 import { useGetData } from "@/hooks/useAxios/axios"
 import toast from "react-hot-toast"
-import { InfoModal } from "./infoModal"
+import { useRouter } from "next/navigation"
 
 interface TableActionsProps {
     data: User[]
@@ -33,6 +33,8 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
   const [userInfo, setUserInfo] =useState<User | null>(null);
   const [infoModal, setInfoModal] =useState<boolean>(false);
 
+
+  const router =useRouter()
   
 
   const getData =useGetData()
@@ -66,7 +68,6 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
 
   return (
 <>
-            <InfoModal open={infoModal} setOpen={setInfoModal} userInfo={userInfo} />
 <Table className="text-[15px]">
 
       <TableHeader>
@@ -123,10 +124,7 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
            </DropdownMenuItem>
          
            <DropdownMenuItem
-            onClick={() =>{
-              setInfoModal(true)
-              setUserInfo(user)
-            }}
+            onClick={() =>router.push(`/teachers/${user?._id}`)}
            >Info</DropdownMenuItem>
          </>
        )}
