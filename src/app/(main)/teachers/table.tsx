@@ -16,9 +16,7 @@ import {
 } from "@/components/ui/table"
 import { MoreHorizontalIcon } from "lucide-react"
 import {  useState } from "react"
-import { AdminEditModal } from "./editModal"
 import { useGetData } from "@/hooks/useAxios/axios"
-import { LeaveModal } from "./leaveModal"
 import toast from "react-hot-toast"
 import { InfoModal } from "./infoModal"
 
@@ -37,14 +35,13 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
 
   
 
-  const [isLeaveModal, setIsLeaveModal] =useState<boolean>(false)
   const getData =useGetData()
 
   console.log(userInfo?.status)
 
   const fetchData = async (userId: string) => {
     try {
-      const res = await getData("staff/deleted-admin", "DELETE", {_id: userId} );
+      const res = await getData("teacher/fire-teacher", "DELETE", {_id: userId} );
       console.log(res)
       onSucess()
     } catch (err:any) {
@@ -54,7 +51,7 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
 
   const ReturnWorkStaff = async (userId: string) => {
     try {
-      const res = await getData("staff/return-work-staff", "POST", {_id: userId} );
+      const res = await getData("teacher/return-teacher", "POST", {_id: userId} );
       console.log(res)
       toast.success("user ishga qaytarildi")
       onSucess()
@@ -69,8 +66,6 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
 
   return (
 <>
-            <AdminEditModal open={isOpenModal}  setOpen={setIsOpenModal} onSucess={onSucess}  userInfo ={userInfo}   />
-            <LeaveModal open={isLeaveModal} setOpen={setIsLeaveModal} onSucess={onSucess} userInfo={userInfo} />
             <InfoModal open={infoModal} setOpen={setInfoModal} userInfo={userInfo} />
 <Table className="text-[15px]">
 
@@ -121,27 +116,12 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
          <>
            <DropdownMenuItem
              onClick={() => {
-               setUserInfo(user);
-               setIsOpenModal(true);
-             }}
-           >
-             Tahrirlash
-           </DropdownMenuItem>
-           <DropdownMenuItem
-             onClick={() => {
                fetchData(user._id);
              }}
            >
              O'chirish
            </DropdownMenuItem>
-           <DropdownMenuItem
-             onClick={() => {
-               setIsLeaveModal(true);
-               setUserInfo(user);
-             }}
-           >
-             Ta'tilda chiqarish
-           </DropdownMenuItem>
+         
            <DropdownMenuItem
             onClick={() =>{
               setInfoModal(true)
