@@ -46,7 +46,7 @@ const Managers = () => {
         ...(params !== "all" && { status: params }),
         ...(searchValue.trim() && { search: searchValue.trim() }),
       };
-            const res = await getData("staff/all-admins", "GET", undefined, queryParams);
+            const res = await getData("teacher/get-all-teachers", "GET", undefined, queryParams);
       setData(res?.data);
       setLoading(false)
     } catch (err:any) {
@@ -66,7 +66,7 @@ const Managers = () => {
     <div>
       <AlertDialogDemo open={isOpenModal} onSucess ={() =>fetchData()} setOpen={setIsOpenModal} />
       <div className='flex justify-between items-center py-3'>
-        <h1 className='text-[1.5rem] font-semibold py-2 px-1'>Foydalanuvchilar ro'yxati</h1>
+        <h1 className='text-[1.5rem] font-semibold py-2 px-1'>Ustozlar ro'yxati</h1>
 
         <div className='flex gap-4 items-center'>
           <Field orientation={'horizontal'}>

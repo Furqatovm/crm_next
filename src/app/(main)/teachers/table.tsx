@@ -79,7 +79,6 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
           <TableHead>Ism</TableHead>
           <TableHead>Familya</TableHead>
           <TableHead>Email</TableHead>
-          <TableHead>Rol</TableHead>
           <TableHead>Holat</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
@@ -94,7 +93,6 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
                <TableCell>{user.first_name}</TableCell>
                <TableCell>{user.last_name}</TableCell>
                <TableCell>{user.email}</TableCell>
-               <TableCell>{user.role}</TableCell>
                <TableCell>
                    {user.status}
                </TableCell>
