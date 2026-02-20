@@ -89,6 +89,62 @@ export interface TeacherType {
 }
 
 
+export interface StudentTypes {
+  _id: string
+  first_name: string
+  last_name: string
+  phone: string
+  address: string | null
+  status: string
+  is_deleted: boolean
+  leave_history: any[]
+  all_price_group: number
+  groups: {
+    _id: string
+    name?: string 
+  }[]
+  createdAt: string
+  updatedAt: string
+}
+
+
+
+
+
+
+export interface GroupTypee {
+  _id: string
+  name: string
+  price: number
+  status: string
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface LeaveHistoryType {
+  _id: string
+  student_id: string
+  leave_days: number
+  reason: string
+  createdAt: string
+  updatedAt?: string
+}
+
+export interface StudentType2 {
+  _id: string
+  first_name: string
+  last_name: string
+  phone: string
+  adress: string | null
+  all_price_group: number
+  status: string
+  is_deleted: boolean
+  groups: GroupType[]
+  leave_history: LeaveHistoryType[]
+  createdAt: string
+  updatedAt: string
+}
+
 
 
 export function formatISOToSimpleTime(isoString: string) {
@@ -98,9 +154,6 @@ export function formatISOToSimpleTime(isoString: string) {
   const month = String(date.getMonth() + 1).padStart(2, "0")
   const year = date.getFullYear()
 
-  const hours = String(date.getHours()).padStart(2, "0")
-  const minutes = String(date.getMinutes()).padStart(2, "0")
-  const seconds = String(date.getSeconds()).padStart(2, "0")
 
-  return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`
+  return `${day}-${month}-${year}`
 }
