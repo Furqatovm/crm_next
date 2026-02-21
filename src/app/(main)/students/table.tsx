@@ -1,7 +1,7 @@
 "use client"
 
 
-import { StudentTypes, User } from "@/@types/@types"
+import { StudentType2, StudentTypes, User } from "@/@types/@types"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -19,11 +19,11 @@ import {
 } from "@/components/ui/table"
 import { MoreHorizontalIcon } from "lucide-react"
 import {  useState } from "react"
-import { AdminEditModal } from "./editModal"
 import { useGetData } from "@/hooks/useAxios/axios"
 import { LeaveModal } from "./leaveModal"
 import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"
+import { AddToGroup } from "./add_grop"
 
 interface TableActionsProps {
     data: StudentTypes[]
@@ -36,7 +36,8 @@ interface TableActionsProps {
 export const TableActions = ({ data, onSucess }: TableActionsProps) => {
   const [isOpenModal, setIsOpenModal] =useState<boolean>(false);
   const [userInfo, setUserInfo] =useState<StudentTypes | null>(null);
-  const [infoModal, setInfoModal] =useState<boolean>(false);
+  const [groupModal, setGroupModal] =useState<boolean>(false)
+
 
 
   const router =useRouter()
@@ -45,7 +46,6 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
   const [isLeaveModal, setIsLeaveModal] =useState<boolean>(false)
   const getData =useGetData()
 
-  console.log(userInfo?.status)
 
   const fetchData = async (userId: string) => {
     try {
@@ -87,7 +87,7 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
 
   return (
 <>
-            <AdminEditModal open={isOpenModal}  setOpen={setIsOpenModal} onSucess={onSucess}  userInfo ={userInfo}   />
+            <AddToGroup open={groupModal} setOpen={setGroupModal} onSucess={onSucess} userId={userInfo?._id as string} />
             <LeaveModal open={isLeaveModal} setOpen={setIsLeaveModal} onSucess={onSucess} userInfo={userInfo} />
 <Table className="text-[15px]">
 
@@ -138,7 +138,12 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
 >
   O'chirish
 </DropdownMenuItem>
-<DropdownMenuItem>
+<DropdownMenuItem 
+onClick={() =>{
+  setUserInfo(user)
+  setGroupModal(true)
+}}
+>
   Guruhga qo'shish
 </DropdownMenuItem>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { formatISOToSimpleTime, StudentType, StudentType2,  } from "@/@types/@types";
+import { formatISOToSimpleTime, LeaveHistoryType, StudentGroupType, StudentType2,  } from "@/@types/@types";
 import { useGetData } from "@/hooks/useAxios/axios";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
@@ -52,8 +52,8 @@ export const TeacherProfile = ({
   }, [id]);
 
   return (
-    <div className="p-6 space-y-6  min-h-screen">
-      <Card className="rounded-2xl shadow-sm">
+    <div className="p-6 space-y-6  min-h-screen text-primary">
+      <Card>
         <CardContent className="flex items-center justify-between p-6">
           <div className="flex items-center gap-4">
           <Avatar className="w-25 h-25">
@@ -78,16 +78,13 @@ export const TeacherProfile = ({
         </CardContent>
       </Card>
 
-      {/* BOTTOM SECTION */}
       <div className="grid md:grid-cols-2 gap-6">
-        {/* O‘QIMOQDA */}
-        <Card className="rounded-2xl shadow-sm">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>O‘qimoqda</CardTitle>
-            <span className="text-sm text-muted-foreground">1</span>
+            <span className="text-primary text-[1.2rem] font-semibold">1</span>
           </CardHeader>
 
-          <Separator />
 
           <CardContent className="pt-4">
             <Table>
@@ -99,28 +96,30 @@ export const TeacherProfile = ({
                   <TableHead>Qo‘shilgan</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell>1</TableCell>
-                  <TableCell>No-code N1</TableCell>
+            {
+              data?.groups?.map((val:StudentGroupType, index :number) =>{
+              return   <TableBody key={val._id} className="text-primary text-[1rem]">
+                <TableRow> 
+                  <TableCell>{index+1}</TableCell>
+                  <TableCell>{val.group.name}</TableCell>
                   <TableCell className="text-blue-600 font-medium">
-                    chiqdi
+                  {val.status}
                   </TableCell>
-                  <TableCell>2025-05-16</TableCell>
+                  <TableCell>{formatISOToSimpleTime(val.joinedAt)}</TableCell>
                 </TableRow>
               </TableBody>
+              })
+            }
             </Table>
           </CardContent>
         </Card>
 
-        {/* TATIL TARIXI */}
         <Card className="rounded-2xl shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Tatil tarixi</CardTitle>
-            <span className="text-sm text-muted-foreground">1</span>
+            <span className="text-[1.2rem] font-semibold text-primary">1</span>
           </CardHeader>
 
-          <Separator />
 
           <CardContent className="pt-4">
             <Table>
@@ -133,15 +132,17 @@ export const TeacherProfile = ({
                   <TableHead>Tugagan</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              {data?.leave_history.map((val :LeaveHistoryType, index:number) =>{
+                return <TableBody key={val._id} className="text-primary text-[1rem]">
                 <TableRow>
-                  <TableCell>1</TableCell>
-                  <TableCell>0</TableCell>
-                  <TableCell>Salbiy sabab</TableCell>
-                  <TableCell>2026-02-20</TableCell>
-                  <TableCell>2026-02-20</TableCell>
+                  <TableCell>{index+1}</TableCell>
+                  <TableCell>{val.days}</TableCell>
+                  <TableCell>{val.reason}</TableCell>
+                  <TableCell>{formatISOToSimpleTime(val.start_date)}</TableCell>
+                  <TableCell>{formatISOToSimpleTime(val.end_date)}</TableCell>
                 </TableRow>
               </TableBody>
+              })}
             </Table>
           </CardContent>
         </Card>

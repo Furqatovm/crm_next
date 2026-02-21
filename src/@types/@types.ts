@@ -122,31 +122,134 @@ export interface GroupTypee {
 }
 
 export interface LeaveHistoryType {
-  _id: string
-  student_id: string
-  leave_days: number
-  reason: string
-  createdAt: string
-  updatedAt?: string
+  days:number
+  end_date:string
+  reason:string
+  start_date:string
+  _id:string
 }
+
+
+
+export interface GroupDetailsType {
+  _id: string;
+  name: string;
+  course: string;
+  teacher: string;
+  price: number;
+  disable: boolean;
+  is_deleted: boolean;
+  started_group: string; 
+  end_group: string;     
+  createdAt: string;     
+  updatedAt: string;     
+}
+
+
+export interface PaymentType  {
+  _id: string;
+  amount: number;
+  date: string;
+  method?: string;
+};
+
+export interface GroupChildrenType  {
+  _id: string;
+  name: string;
+  teacher: string;
+  course: string;
+  is_deleted: boolean;
+};
+
+export interface StudentGroupType  {
+  group: GroupChildrenType;
+  joinedAt: string;
+  exitedAt: string;
+  payments: PaymentType[];
+  status: "chiqdi" | "faol"; 
+  _id: string;
+};
+
+
+
+
+
+export interface PaymentType {
+  _id: string;
+  amount: number;
+  date: string;
+  method?: string; // ixtiyoriy maydon
+}
+
+export interface GroupChildrenType {
+  _id: string;
+  name: string;
+  teacher: string;
+  course: string;
+  is_deleted: boolean;
+  // boshqa maydonlar bo'lsa qo'shishingiz mumkin
+}
+
+export interface StudentGroupType {
+  _id: string;
+  group: GroupChildrenType;
+  joinedAt: string;    // Guruhga qo'shilgan sana (ISO string)
+  exitedAt: string;    // Guruhdan chiqqan sana (ISO string)
+  payments: PaymentType[];  // To'lovlar
+  status: "chiqdi" | "faol"; // Holat
+}
+
 
 export interface StudentType2 {
   _id: string
   first_name: string
   last_name: string
   phone: string
-  adress: string | null
+  adress?: string | null
   all_price_group: number
   status: string
   is_deleted: boolean
-  groups: GroupType[]
+  groups: StudentGroupType[]
   leave_history: LeaveHistoryType[]
   createdAt: string
   updatedAt: string
 }
 
 
+export type OqituvChiType = {
+  _id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  field: string;
+  groups: string[];
+  image: string | null;
+  is_deleted: boolean;
+  password: string;
+  phone: string;
+  salary: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  work_date: string;
+  work_end: string;
+};
 
+export type GruxlarType = {
+  _id: string;
+  name: string;
+  price: number;
+  course: string;
+  field?: string;
+  students: any[]; // agar student tipini alohida yaratmoqchi bo'lsangiz, uni ham o'zgartirish mumkin
+  teacher: TeacherType;
+  disable: boolean;
+  is_deleted: boolean;
+  started_group: string;
+  end_group: string;
+  createdAt: string;
+  updatedAt: string;
+};
 export function formatISOToSimpleTime(isoString: string) {
   const date = new Date(isoString)
 
