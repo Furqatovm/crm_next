@@ -110,7 +110,7 @@ export const AlertDialogDemo = ({
     )
   }
 
-  // ================= FILTER =================
+  const data =courses.filter((val) =>val.name)
   const filteredCourses = courses.filter((course) => {
     const name =
       typeof course.name === "string"
