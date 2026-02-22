@@ -119,7 +119,7 @@ export interface TeacherType {
   status: string
   is_deleted: boolean
   salary: number
-  groups: string[]   // group id lar
+  groups: GroupType[]   // group id lar
   createdAt: string
   updatedAt: string
   work_date: string

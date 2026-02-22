@@ -1,6 +1,6 @@
 "use client"
 
-import { StudentTypes, User } from "@/@types/@types"
+import { StudentFullType } from "@/@types/@types"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -24,7 +24,7 @@ import { setLogout } from "@/store/auth-slice"
 interface ModalProps {
   open: boolean
   setOpen: (value: boolean) => void
-  userInfo: StudentTypes | null
+  userInfo: StudentFullType | null
   onSucess: () => void
 }
 
@@ -44,7 +44,7 @@ export const LeaveModal = ({
   const getData = useGetData()
   const dispatch = useDispatch()
   const router = useRouter()
-
+  console.log(userInfo)
   const {
     register,
     handleSubmit,

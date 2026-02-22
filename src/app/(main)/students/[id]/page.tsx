@@ -1,6 +1,6 @@
 "use client";
 
-import { formatISOToSimpleTime, LeaveHistoryType, StudentGroupType, StudentType2,  } from "@/@types/@types";
+import { formatISOToSimpleTime, LeaveHistoryType, StudentGroupType, StudentFullType,  } from "@/@types/@types";
 import { useGetData } from "@/hooks/useAxios/axios";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
@@ -15,7 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const TeacherProfile = ({
@@ -24,7 +23,7 @@ export const TeacherProfile = ({
   params: Promise<{ id: string }>;
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [data, setData] = useState<StudentType2>();
+  const [data, setData] = useState<StudentFullType>();
 
   const router = useRouter();
   const getData = useGetData();

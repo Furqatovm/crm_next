@@ -1,6 +1,6 @@
 "use client"
 
-import { formatISOToSimpleTime, TeacherType, User } from "@/@types/@types";
+import { formatISOToSimpleTime, TeacherType,  } from "@/@types/@types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useGetData } from "@/hooks/useAxios/axios";
 import { useRouter } from "next/navigation";
@@ -21,7 +21,7 @@ const resolvedParams = use(params);
   const updateTime =formatISOToSimpleTime(data?.updatedAt as string);
 
   const totalStudents = data?.groups.reduce((acc, group) => {
-    return acc + group.students.length
+    return acc + group.students.length 
   }, 0) ?? 0
   
   console.log(data)

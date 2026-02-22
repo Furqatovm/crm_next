@@ -1,7 +1,7 @@
 "use client"
 
 
-import {  StudentTypes } from "@/@types/@types"
+import {  StudentFullType } from "@/@types/@types"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -26,7 +26,7 @@ import { useRouter } from "next/navigation"
 import { AddToGroup } from "./add_grop"
 
 interface TableActionsProps {
-    data: StudentTypes[]
+    data: StudentFullType[]
     onSucess: () => void
   }
   
@@ -35,7 +35,7 @@ interface TableActionsProps {
 
 export const TableActions = ({ data, onSucess }: TableActionsProps) => {
   const [isOpenModal, setIsOpenModal] =useState<boolean>(false);
-  const [userInfo, setUserInfo] =useState<StudentTypes | null>(null);
+  const [userInfo, setUserInfo] =useState<StudentFullType | null>(null);
   const [groupModal, setGroupModal] =useState<boolean>(false)
 
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { GruxlarType } from "@/@types/@types"
+import { GroupType } from "@/@types/@types"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -33,10 +33,10 @@ interface FormValues {
 }
 
 export const AddToGroup = ({ open, setOpen, onSucess, userId }: ModalBoolean) => {
-  const [courses, setCourses] = useState<GruxlarType[]>([])
+  const [courses, setCourses] = useState<GroupType[]>([])
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState("")
-  const [selectedGroup, setSelectedGroup] = useState<GruxlarType | null>(null) // ✅ GruxlarType bilan
+  const [selectedGroup, setSelectedGroup] = useState<GroupType | null>(null) // ✅ GroupType bilan
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -77,7 +77,7 @@ export const AddToGroup = ({ open, setOpen, onSucess, userId }: ModalBoolean) =>
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  const filteredCourses = courses.filter((val: GruxlarType) => {
+  const filteredCourses = courses.filter((val: GroupType) => {
     if (val.is_deleted) return false
     const name = typeof val.name === "string" ? val.name : (val as any)?.name?.name || ""
     return name.toLowerCase().includes(search.toLowerCase())
