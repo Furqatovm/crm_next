@@ -1,6 +1,6 @@
 "use client"
 
-import { CourseType } from "@/@types/@types"
+import { CourseType, GroupDetailsType } from "@/@types/@types"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -38,11 +38,13 @@ export const AlertDialogDemo = ({
   onSucess,
 }: ModalBoolean) => {
   const [loading, setLoading] = useState(false)
-  const [courses, setCourses] = useState<CourseType[]>([])
+  const [courses, setCourses] = useState<GroupDetailsType[]>([])
   const [selectedGroups, setSelectedGroups] = useState<string[]>([])
   const [search, setSearch] = useState("")
   const [showDropdown, setShowDropdown] = useState(false)
 
+
+  const FilteredData =courses.filter((val) =>val.is_deleted !==true);
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   const getData = useGetData()
@@ -56,10 +58,8 @@ export const AlertDialogDemo = ({
     formState: { errors },
   } = useForm<FormValues>()
 
-  // ================= FETCH GROUPS =================
   const fetchCourses = async () => {
     try {
-      setLoading(true)
       const res = await getData("group/get-all-group", "GET")
 
       if (res?.data && Array.isArray(res.data)) {
@@ -73,9 +73,7 @@ export const AlertDialogDemo = ({
         router.push("/login")
       }
       setCourses([])
-    } finally {
-      setLoading(false)
-    }
+    } 
   }
 
   useEffect(() => {
@@ -84,7 +82,6 @@ export const AlertDialogDemo = ({
     }
   }, [open])
 
-  // ================= OUTSIDE CLICK CLOSE =================
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -111,7 +108,7 @@ export const AlertDialogDemo = ({
   }
 
   const data =courses.filter((val) =>val.name)
-  const filteredCourses = courses.filter((course) => {
+  const filteredCourses = FilteredData.filter((course) => {
     const name =
       typeof course.name === "string"
         ? course.name

@@ -1,7 +1,7 @@
 "use client"
 
 
-import { StudentType2, StudentTypes, User } from "@/@types/@types"
+import {  StudentTypes } from "@/@types/@types"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -89,7 +89,7 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
 <>
             <AddToGroup open={groupModal} setOpen={setGroupModal} onSucess={onSucess} userId={userInfo?._id as string} />
             <LeaveModal open={isLeaveModal} setOpen={setIsLeaveModal} onSucess={onSucess} userInfo={userInfo} />
-<Table className="text-[15px]">
+<Table className="text-[1rem]">
 
       <TableHeader>
         <TableRow>
