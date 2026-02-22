@@ -39,7 +39,6 @@ export const AlertDialogDemo = ({ open, setOpen, onSucess }: ModalBoolean) => {
   const getData = useGetData()
   const role: string = "manager"
 
-  // useForm: role, status, active, is_deleted formga kirmaydi
   const {
     register,
     handleSubmit,
