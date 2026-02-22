@@ -1,4 +1,3 @@
-import { User } from "@/@types/@types"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -19,9 +18,10 @@ import {  useState } from "react"
 import { useGetData } from "@/hooks/useAxios/axios"
 import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"
+import { UserType } from "@/@types/@types"
 
 interface TableActionsProps {
-    data: User[]
+    data: UserType[]
     onSucess: () => void
   }
   
@@ -30,7 +30,7 @@ interface TableActionsProps {
 
 export const TableActions = ({ data, onSucess }: TableActionsProps) => {
   const [isOpenModal, setIsOpenModal] =useState<boolean>(false);
-  const [userInfo, setUserInfo] =useState<User | null>(null);
+  const [userInfo, setUserInfo] =useState<UserType | null>(null);
   const [infoModal, setInfoModal] =useState<boolean>(false);
 
 

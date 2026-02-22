@@ -1,5 +1,5 @@
 // src/components/table/table.tsx
-import { User } from "@/@types/@types"
+import { UserType } from "@/@types/@types"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -19,7 +19,7 @@ import {
 import { MoreHorizontalIcon } from "lucide-react"
 
 
-export const TableActions = ({ data }: { data: User[] }) => {
+export const TableActions = ({ data }: { data: UserType[] }) => {
   return (
     <Table className="text-[15px]">
       <TableHeader>
