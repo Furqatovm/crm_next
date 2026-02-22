@@ -1,4 +1,3 @@
-import { User } from "@/@types/@types"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -16,14 +15,14 @@ import {
 } from "@/components/ui/table"
 import { MoreHorizontalIcon } from "lucide-react"
 import {  useState } from "react"
-import { AdminEditModal } from "./editModal"
 import { useGetData } from "@/hooks/useAxios/axios"
 import { LeaveModal } from "./leaveModal"
 import toast from "react-hot-toast"
 import { InfoModal } from "./infoModal"
+import { UserType } from "@/@types/@types"
 
 interface TableActionsProps {
-    data: User[]
+    data: UserType[]
     onSucess: () => void
   }
   
@@ -32,7 +31,7 @@ interface TableActionsProps {
 
 export const TableActions = ({ data, onSucess }: TableActionsProps) => {
   const [isOpenModal, setIsOpenModal] =useState<boolean>(false);
-  const [userInfo, setUserInfo] =useState<User | null>(null);
+  const [userInfo, setUserInfo] =useState<UserType | null>(null);
   const [infoModal, setInfoModal] =useState<boolean>(false);
 
   
@@ -69,7 +68,6 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
 
   return (
 <>
-            <AdminEditModal open={isOpenModal}  setOpen={setIsOpenModal} onSucess={onSucess}  userInfo ={userInfo}   />
             <LeaveModal open={isLeaveModal} setOpen={setIsLeaveModal} onSucess={onSucess} userInfo={userInfo} />
             <InfoModal open={infoModal} setOpen={setInfoModal} userInfo={userInfo} />
 <Table className="text-[15px]">

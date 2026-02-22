@@ -1,6 +1,5 @@
 "use client"
 
-import { User } from "@/@types/@types"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -20,11 +19,12 @@ import toast from "react-hot-toast"
 import { useDispatch } from "react-redux"
 import { useRouter } from "next/navigation"
 import { setLogout } from "@/store/auth-slice"
+import { UserType } from "@/@types/@types"
 
 interface ModalProps {
   open: boolean
   setOpen: (value: boolean) => void
-  userInfo: User | null
+  userInfo: UserType | null
   onSucess: () => void
 }
 
