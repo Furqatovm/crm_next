@@ -1,4 +1,4 @@
-import { formatISOToSimpleTime, User } from "@/@types/@types"
+import { formatISOToSimpleTime, UserType } from "@/@types/@types"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -16,7 +16,7 @@ import { X } from "lucide-react"
 
   interface ModalBoolean {
     open: boolean
-    userInfo:User | null,
+    userInfo:UserType | null,
     setOpen: (value: boolean) => void
   }
 
