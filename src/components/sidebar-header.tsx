@@ -5,8 +5,10 @@ import { Avatar, AvatarImage } from './ui/avatar'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
 import { usePathname } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 
 const SideBarHeaderComponent = () => {
+    const router =useRouter()
     const pathname =usePathname()
 
     const user =useSelector((state:RootState) =>state.authSlice.user)
@@ -26,7 +28,7 @@ const SideBarHeaderComponent = () => {
             <div className='flex gap-8 items-center'>
                 <ModeToggle />
                 <div className='w-px h-10 bg-gray-300'></div>
-                <div className='flex gap-2 items-center'>
+                <div className='flex gap-2 items-center cursor-pointer'  onClick={() =>router.push("/profile")} >
                     <div className='flex flex-col items-end'>
                         <span>{user?.first_name}</span>
                         <span>{user?.email}</span>

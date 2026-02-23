@@ -66,7 +66,6 @@ export const AddToGroup = ({ open, setOpen, onSucess, userId }: ModalBoolean) =>
     if (open) fetchCourses()
   }, [open])
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
