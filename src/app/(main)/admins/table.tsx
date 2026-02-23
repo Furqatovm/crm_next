@@ -70,7 +70,7 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
 <>
             <LeaveModal open={isLeaveModal} setOpen={setIsLeaveModal} onSucess={onSucess} userInfo={userInfo} />
             <InfoModal open={infoModal} setOpen={setInfoModal} userInfo={userInfo} />
-<Table className="text-[15px]">
+<Table className="text-[1rem]">
 
       <TableHeader>
         <TableRow>

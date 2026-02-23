@@ -68,7 +68,7 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
 
   return (
 <>
-<Table className="text-[15px]">
+<Table className="text-[1rem]">
 
       <TableHeader>
         <TableRow>

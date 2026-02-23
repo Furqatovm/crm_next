@@ -1,4 +1,3 @@
-// src/components/table/table.tsx
 import { UserType } from "@/@types/@types"
 import { Button } from "@/components/ui/button"
 import {
@@ -21,7 +20,7 @@ import { MoreHorizontalIcon } from "lucide-react"
 
 export const TableActions = ({ data }: { data: UserType[] }) => {
   return (
-    <Table className="text-[15px]">
+    <Table className="text-[1rem]">
       <TableHeader>
         <TableRow>
           <TableHead>Ism</TableHead>

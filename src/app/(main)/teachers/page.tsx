@@ -21,6 +21,13 @@ import { setLogout } from '@/store/auth-slice';
 import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/field';
 
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
+
+
 const Managers = () => {
   const items = [
     { label: "Hammasi", value: "all" },
@@ -69,12 +76,13 @@ const Managers = () => {
         <h1 className='text-[1.5rem] font-semibold py-2 px-1'>Ustozlar ro'yxati</h1>
 
         <div className='flex gap-4 items-center'>
-          <Field orientation={'horizontal'}>
-            <Input value={searchValue} placeholder='Davron' onChange={(e) =>setSearchValue(e.target.value)} />
-            <Button onClick={fetchData} >
-            <Search />
-            </Button>
-          </Field>
+        <InputGroup className="max-w-xs">
+      <InputGroupInput onChange={(e) =>setSearchValue(e.target.value)} placeholder="Search..." />
+      <InputGroupAddon>
+        <Search />
+      </InputGroupAddon>
+      <InputGroupAddon align="inline-end">{data?.length ==0 ? 0: data.length} results</InputGroupAddon>
+    </InputGroup>
         <Button className='cursor-pointer' onClick={() =>setIsOpenModal(true)}><Plus /><span>Admin Qo'shish</span></Button>
 
 <Select value={params} onValueChange={(e) => setParams(e)}>

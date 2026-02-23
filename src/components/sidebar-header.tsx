@@ -11,7 +11,6 @@ const SideBarHeaderComponent = () => {
     const pathname = usePathname()
     const user = useSelector((state: RootState) => state.authSlice.user)
 
-    // Pathname ni faqat asosiy segment bilan ko'rsatish
     const currentPath = pathname === "/" 
         ? "Asosiy" 
         : pathname.split("/")[1]
