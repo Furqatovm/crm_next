@@ -12,6 +12,8 @@ import { formatISOToSimpleTime } from "@/@types/@types"
 import { useForm } from "react-hook-form"
 import toast from "react-hot-toast"
 import { useEditedProfile, useEditedProfileImage } from "@/hooks/useQuery/useQueryAction"
+import { useDispatch } from "react-redux"
+import { setUser } from "@/store/auth-slice"
 
 type ProfileFormValues = {
   first_name: string
@@ -20,6 +22,7 @@ type ProfileFormValues = {
 }
 
 const Profile = () => {
+  const dispatch =useDispatch()
   const { mutate: EditedProfileData, isPending: isSavingInfo } = useEditedProfile();
   const { mutate: EditedProfileImage, isPending: isUploadingImg } = useEditedProfileImage();
   
@@ -42,6 +45,7 @@ const Profile = () => {
       onSuccess: () => {
         const updatedUser = { ...user, ...data };
         Cookies.set("user", JSON.stringify(updatedUser));
+        dispatch(setUser(updatedUser))
       }
     });
   }
@@ -60,6 +64,7 @@ const Profile = () => {
           const newImg = res?.data?.image || imageUrl;
           const updatedUser = { ...user, image: newImg };
           Cookies.set("user", JSON.stringify(updatedUser));
+          dispatch(setUser(updatedUser))
         },
         onError: () => {
           setPreview(null);
