@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useGetData } from "@/hooks/useAxios/axios"
+import { useEditCourse } from "@/hooks/useQuery/useQueryAction"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import toast from "react-hot-toast"
@@ -30,6 +31,7 @@ interface FormValues {
 }
 
 export const EditedCourseModal = ({ open, setOpen, onSucess, courseInfo }: ModalBoolean) => {
+  const {mutate, isPending} =useEditCourse()
   const [loading, setLoading] = useState<boolean>(false)
   const getData = useGetData()
 
@@ -51,31 +53,12 @@ export const EditedCourseModal = ({ open, setOpen, onSucess, courseInfo }: Modal
         ...data,
         course_id:courseInfo?._id
     }
-    try {
-      setLoading(true)
-  
-      const res = await getData(
-        "course/edit-course",
-        "POST",
-        payload
-      )
-  
-      if (res.status !== 200) {
-        toast.error(res.message || "Xatolik yuz berdi")
-        return
+    mutate(payload, {
+      onSuccess:() =>{
+        reset();
+        setOpen(false)
       }
-  
-      toast.success("Category muvaffaqiyatli qo'shildi")
-      reset()
-      setOpen(false)
-      onSucess()
-  
-    } catch (err: any) {
-      console.log(err)
-      toast.error("Xatolik yuz berdi")
-    } finally {
-      setLoading(false)
-    }
+    })
   }
 
   return (
@@ -92,7 +75,7 @@ export const EditedCourseModal = ({ open, setOpen, onSucess, courseInfo }: Modal
           {errors.duration && <p className="text-red-500">{errors.duration.message}</p>}
 
           <Label>Narx (UZS)</Label>
-          <Input defaultValue={courseInfo?.price} {...register("price", { required: "Please price" })}  placeholder="10000" />
+          <Input defaultValue={courseInfo?.price} {...register("price", { required: "Please price" })}  type="number" placeholder="10000" />
           {errors.price && <p className="text-red-500">{errors.price.message}</p>}
 
           <AlertDialogFooter>
@@ -100,8 +83,8 @@ export const EditedCourseModal = ({ open, setOpen, onSucess, courseInfo }: Modal
               Cancel
             </AlertDialogCancel>
 
-            <Button type="submit" disabled={loading}>
-              {loading ? "Submitting..." : "Submit"}
+            <Button type="submit" disabled={isPending}>
+              {isPending ? "Submitting..." : "Submit"}
             </Button>
           </AlertDialogFooter>
         </form>

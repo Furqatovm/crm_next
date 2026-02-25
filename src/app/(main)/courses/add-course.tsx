@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
 import { useGetData } from "@/hooks/useAxios/axios"
+import { useAddNewCourse } from "@/hooks/useQuery/useQueryAction"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import toast from "react-hot-toast"
@@ -35,6 +36,8 @@ interface FormValues {
 
 export const AddCourseModal = ({ open, setOpen, onSucess }: ModalBoolean) => {
   const [loading, setLoading] = useState<boolean>(false)
+  const {mutate} =useAddNewCourse()
+
   const getData = useGetData()
   const role: string = "manager"
 
@@ -46,31 +49,12 @@ export const AddCourseModal = ({ open, setOpen, onSucess }: ModalBoolean) => {
   } = useForm<FormValues>()
 
   const onSubmit = async (data: FormValues) => {
-    try {
-      setLoading(true)
-  
-      const res = await getData(
-        "course/create-course",
-        "POST",
-        data
-      )
-  
-      if (res.status !== 201) {
-        toast.error(res.message || "Xatolik yuz berdi")
-        return
+    mutate(data, {
+      onSuccess:() =>{
+        reset();
+        setOpen(false)
       }
-  
-      toast.success("Category muvaffaqiyatli qo'shildi")
-      reset()
-      setOpen(false)
-      onSucess()
-  
-    } catch (err: any) {
-      console.log(err)
-      toast.error("Xatolik yuz berdi")
-    } finally {
-      setLoading(false)
-    }
+    })
   }
 
   return (

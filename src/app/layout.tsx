@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { StoreProvider } from "@/store/StoreProvider";
 import { Toaster } from "react-hot-toast";
 import ModeToggle from "@/components/togleMode";
+import Providers from "@/lib/react-query";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,6 +29,8 @@ export default function RootLayout({
 }>) {
   return (
     <StoreProvider>
+      <Providers>
+
 
 
     <html lang="en" suppressHydrationWarning>
@@ -49,6 +52,8 @@ export default function RootLayout({
  </ThemeProvider>
       </body>
     </html>
+    
+    </Providers>
     </StoreProvider>
   );
 }

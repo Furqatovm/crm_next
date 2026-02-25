@@ -1,6 +1,7 @@
 "use client"
+
 import { TableActions } from '@/components/table/table'
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   Select,
   SelectContent,
@@ -10,10 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useGetData } from '@/hooks/useAxios/axios';
 import { SkeletonTable } from '@/components/skeleton/table';
+import { fetchManagers, useQueryHandler } from '@/hooks/useAxios/useFetchdata';
 
 const Managers = () => {
+
   const items = [
     { label: "Hammasi", value: "all" },
     { label: "Ishdan bo'shatilgan", value: "ishdan bo'shatilgan" },
@@ -21,56 +23,48 @@ const Managers = () => {
   ];
 
   const [params, setParams] = useState<string>("all");
-  const getData = useGetData();
-  const [loading, setLoading] =useState<boolean>(false);
-  const [data, setData] = useState<any>([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true)
-        const queryParams = params !== "all" ? { status: params } : undefined;
-        const res = await getData("staff/all-managers", "GET", undefined, queryParams);
-        setData(res?.data);
-        setLoading(false)
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetchData();
-  }, [params]);
+ const {data, isLoading} =useQueryHandler({
+  url:"staff/all-managers",
+  pathname:"get-managers",
+  param:
+    params !== "all"
+      ? { status: params }
+      : undefined,
+  
+ })
 
   return (
     <div>
       <div className='flex justify-between items-center py-3'>
-        <h1 className='text-[1.5rem] font-semibold py-2 px-1'>Foydalanuvchilar ro'yxati</h1>
+        <h1 className='text-[1.5rem] font-semibold py-2 px-1'>
+          Foydalanuvchilar ro'yxati
+        </h1>
 
         <div className='flex gap-4 items-center'>
-
-<Select value={params} onValueChange={(e) => setParams(e)}>
-  <SelectTrigger className="w-full max-w-48">
-    <SelectValue />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectGroup>
-      <SelectLabel>Status</SelectLabel>
-      {items.map((item) => (
-        <SelectItem key={item.value} value={item.value}>
-          {item.label}
-        </SelectItem>
-      ))}
-    </SelectGroup>
-  </SelectContent>
-</Select>
+          <Select value={params} onValueChange={(e) => setParams(e)}>
+            <SelectTrigger className="w-full max-w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Status</SelectLabel>
+                {items.map((item) => (
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
-      {
-        loading ? 
+      {isLoading ? (
         <SkeletonTable />
-        :
-        <TableActions data={data} />
-      }
+      ) : (
+        <TableActions data={data?.data} />
+      )}
     </div>
   );
 };

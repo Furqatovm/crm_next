@@ -99,3 +99,64 @@ export const useGetData =() =>{
 
 
 
+
+
+
+interface AxiosType {
+    url: string;
+    method?: "PUT"|"DELETE"|"POST"|"GET";
+    body?:object;
+    param?:object;
+}
+
+
+export const useAxios =()=>{
+    const BearerToken =Cookies.get("token")||"";
+    const request =({url, method ="GET", body, param}: AxiosType) =>{
+        return axios({
+            url:`${process.env.NEXT_PUBLIC_BASE_URL}/${url}`,
+            method,
+            headers:{
+                "Content-Type": "application/json",
+                Authorization:`Bearer ${BearerToken}`
+            },
+            data:body,
+            params:{
+                ...param,
+            }
+
+        }).then((res) =>res.data)
+        .catch((error) =>{
+            throw error
+        })
+
+    }
+    return request
+}
+
+
+
+
+export const useAxiosImage =()=>{
+  const BearerToken =Cookies.get("token")||"";
+  const request =({url, method ="GET", body, param}: AxiosType) =>{
+      return axios({
+          url:`${process.env.NEXT_PUBLIC_BASE_URL}/${url}`,
+          method,
+          headers:{
+              "Content-Type": "multipart/form-data",
+              Authorization:`Bearer ${BearerToken}`
+          },
+          data:body,
+          params:{
+              ...param,
+          }
+
+      }).then((res) =>res.data)
+      .catch((error) =>{
+          throw error
+      })
+
+  }
+  return request
+}

@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useGetData } from "@/hooks/useAxios/axios"
+import { useAddGroup } from "@/hooks/useQuery/useQueryAction"
 import { setLogout } from "@/store/auth-slice"
 import { useRouter } from "next/navigation"
 import { useEffect, useState, useRef } from "react"
@@ -41,7 +42,6 @@ interface SimpleCourseType {
 }
 
 export const AlertDialogDemo = ({ open, setOpen, onSucess }: ModalBoolean) => {
-  const [loading, setLoading] = useState(false)
   const [teachers, setTeachers] = useState<SimpleTeacherType[]>([])
   const [courses, setCourses] = useState<SimpleCourseType[]>([])
   const [teacherSearch, setTeacherSearch] = useState("")
@@ -59,6 +59,8 @@ export const AlertDialogDemo = ({ open, setOpen, onSucess }: ModalBoolean) => {
   const dispatch = useDispatch()
   const router = useRouter()
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>()
+
+  const { mutate, isPending } = useAddGroup()
 
   const fetchTeachers = async () => {
     try {
@@ -116,7 +118,7 @@ export const AlertDialogDemo = ({ open, setOpen, onSucess }: ModalBoolean) => {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  const onSubmit = async (data: FormValues) => {
+  const onSubmit = (data: FormValues) => {
     if (!selectedTeacher || !selectedCourse) {
       toast.error("Iltimos, teacher va course ni tanlang")
       return
@@ -128,12 +130,9 @@ export const AlertDialogDemo = ({ open, setOpen, onSucess }: ModalBoolean) => {
       started_group: data.started_group
     }
 
-    try {
-      setLoading(true)
-      const res = await getData("group/create-group", "POST", payload)
-      if (res.status === 403) toast.error("Xatolik yuz berdi")
-      else {
-        toast.success("Student muvaffaqiyatli qo'shildi")
+    mutate(payload, {
+      onSuccess: () => {
+        toast.success("Guruh muvaffaqiyatli qo'shildi")
         reset()
         setSelectedTeacher(null)
         setSelectedCourse(null)
@@ -141,23 +140,22 @@ export const AlertDialogDemo = ({ open, setOpen, onSucess }: ModalBoolean) => {
         setCourseSearch("")
         setOpen(false)
         onSucess()
+      },
+      onError: (err: any) => {
+        toast.error(err?.response?.data?.message || "Xatolik yuz berdi")
       }
-    } catch {
-      toast.error("Xatolik yuz berdi")
-    } finally {
-      setLoading(false)
-    }
+    })
   }
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Add new Student</AlertDialogTitle>
+          <AlertDialogTitle>Yangi guruh qo'shish</AlertDialogTitle>
         </AlertDialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-
+          
           <div className="relative" ref={teacherDropdownRef}>
             <Label>Teacher</Label>
             <Input
@@ -171,22 +169,14 @@ export const AlertDialogDemo = ({ open, setOpen, onSucess }: ModalBoolean) => {
               placeholder="Teacherni qidiring..."
               className="mt-2"
             />
-            {selectedTeacher && (
-              <span
-                className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer text-red-500"
-                onClick={() => setSelectedTeacher(null)}
-              >
-                x
-              </span>
-            )}
             {showTeacherDropdown && !selectedTeacher && (
-              <ul className="absolute bg-white border w-full mt-1 max-h-40 overflow-auto z-50">
+              <ul className="absolute bg-white border w-full mt-1 max-h-40 overflow-auto z-50 rounded shadow-md">
                 {teachers
                   .filter(t => t.name.toLowerCase().includes(teacherSearch.toLowerCase()))
                   .map(t => (
                     <li
                       key={t.id}
-                      className="p-2 hover:bg-gray-200 cursor-pointer"
+                      className="p-2 hover:bg-gray-100 cursor-pointer text-sm"
                       onClick={() => {
                         setSelectedTeacher(t)
                         setShowTeacherDropdown(false)
@@ -212,22 +202,14 @@ export const AlertDialogDemo = ({ open, setOpen, onSucess }: ModalBoolean) => {
               placeholder="Course ni qidiring..."
               className="mt-2"
             />
-            {selectedCourse && (
-              <span
-                className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer text-red-500"
-                onClick={() => setSelectedCourse(null)}
-              >
-                x
-              </span>
-            )}
             {showCourseDropdown && !selectedCourse && (
-              <ul className="absolute bg-white border w-full mt-1 max-h-40 overflow-auto z-50">
+              <ul className="absolute bg-white border w-full mt-1 max-h-40 overflow-auto z-50 rounded shadow-md">
                 {courses
                   .filter(c => c.name.toLowerCase().includes(courseSearch.toLowerCase()))
                   .map(c => (
                     <li
                       key={c.id}
-                      className="p-2 hover:bg-gray-200 cursor-pointer"
+                      className="p-2 hover:bg-gray-100 cursor-pointer text-sm"
                       onClick={() => {
                         setSelectedCourse(c)
                         setShowCourseDropdown(false)
@@ -242,13 +224,19 @@ export const AlertDialogDemo = ({ open, setOpen, onSucess }: ModalBoolean) => {
 
           <div>
             <Label>Started Group</Label>
-            <Input type="date" {...register("started_group", { required: "Please select a date" })} />
-            {errors.started_group && <p className="text-red-500 text-sm">{errors.started_group.message}</p>}
+            <Input 
+              type="date" 
+              className="mt-2"
+              {...register("started_group", { required: "Sana tanlash majburiy" })} 
+            />
+            {errors.started_group && <p className="text-red-500 text-xs mt-1">{errors.started_group.message}</p>}
           </div>
 
           <AlertDialogFooter>
-            <AlertDialogCancel type="button" onClick={() => setOpen(false)}>Cancel</AlertDialogCancel>
-            <Button type="submit" disabled={loading}>{loading ? "Submitting..." : "Submit"}</Button>
+            <AlertDialogCancel type="button" onClick={() => setOpen(false)}>Bekor qilish</AlertDialogCancel>
+            <Button type="submit" disabled={isPending}>
+              {isPending ? "Yuborilmoqda..." : "Tasdiqlash"}
+            </Button>
           </AlertDialogFooter>
         </form>
       </AlertDialogContent>

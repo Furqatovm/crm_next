@@ -1,6 +1,6 @@
 "use client"
 
-import { CourseType, GroupDetailsType } from "@/@types/@types"
+import { GroupDetailsType } from "@/@types/@types"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -12,13 +12,11 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useGetData } from "@/hooks/useAxios/axios"
-import { setLogout } from "@/store/auth-slice"
-import { useRouter } from "next/navigation"
+import { useQueryHandler } from "@/hooks/useAxios/useFetchdata" // Guruhlarni olish uchun
+import { useAddStudent } from "@/hooks/useQuery/useQueryAction"
 import { useEffect, useState, useRef } from "react"
 import { useForm } from "react-hook-form"
 import toast from "react-hot-toast"
-import { useDispatch } from "react-redux"
 
 interface ModalBoolean {
   open: boolean
@@ -37,19 +35,19 @@ export const AlertDialogDemo = ({
   setOpen,
   onSucess,
 }: ModalBoolean) => {
-  const [loading, setLoading] = useState(false)
-  const [courses, setCourses] = useState<GroupDetailsType[]>([])
   const [selectedGroups, setSelectedGroups] = useState<string[]>([])
   const [search, setSearch] = useState("")
   const [showDropdown, setShowDropdown] = useState(false)
-
-
-  const FilteredData =courses.filter((val) =>val.is_deleted !==true);
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const getData = useGetData()
-  const dispatch = useDispatch()
-  const router = useRouter()
+  const { data: groupsData } = useQueryHandler({
+    url: "group/get-all-group", 
+    pathname: "get-all-groups-for-student"
+  })
+
+  const courses: GroupDetailsType[] = groupsData?.data || []
+
+  const { mutate, isPending } = useAddStudent()
 
   const {
     register,
@@ -58,67 +56,29 @@ export const AlertDialogDemo = ({
     formState: { errors },
   } = useForm<FormValues>()
 
-  const fetchCourses = async () => {
-    try {
-      const res = await getData("group/get-all-group", "GET")
-
-      if (res?.data && Array.isArray(res.data)) {
-        setCourses(res.data)
-      } else {
-        setCourses([])
-      }
-    } catch (err: any) {
-      if (err.message === "Invalid token") {
-        dispatch(setLogout())
-        router.push("/login")
-      }
-      setCourses([])
-    } 
-  }
-
-  useEffect(() => {
-    if (open) {
-      fetchCourses()
-    }
-  }, [open])
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowDropdown(false)
       }
     }
-
     document.addEventListener("mousedown", handleClickOutside)
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
+    return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  // ================= TOGGLE GROUP =================
   const toggleGroup = (id: string) => {
     setSelectedGroups((prev) =>
-      prev.includes(id)
-        ? prev.filter((g) => g !== id)
-        : [...prev, id]
+      prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]
     )
   }
 
-  const data =courses.filter((val) =>val.name)
-  const filteredCourses = FilteredData.filter((course) => {
-    const name =
-      typeof course.name === "string"
-        ? course.name
-        : (course as any)?.name?.name || ""
-
+  const filteredCourses = courses.filter((course) => {
+    if (course.is_deleted) return false;
+    const name = typeof course.name === "string" ? course.name : (course as any)?.name?.name || ""
     return name.toLowerCase().includes(search.toLowerCase())
   })
 
-  // ================= SUBMIT =================
-  const onSubmit = async (formData: FormValues) => {
+  const onSubmit = (formData: FormValues) => {
     if (selectedGroups.length === 0) {
       toast.error("Iltimos kamida bitta guruhni tanlang")
       return
@@ -131,95 +91,49 @@ export const AlertDialogDemo = ({
       })),
     }
 
-    try {
-      setLoading(true)
-
-      const res = await getData(
-        "student/create-student",
-        "POST",
-        payload
-      )
-
-      if (res.status === 403) {
-        toast.error("Xatolik yuz berdi")
-      } else {
+    mutate(payload, {
+      onSuccess: () => {
         toast.success("Student muvaffaqiyatli qo'shildi")
         reset()
         setSelectedGroups([])
         setSearch("")
         setOpen(false)
         onSucess()
+      },
+      onError: (err: any) => {
+        toast.error(err?.response?.data?.message || "Xatolik yuz berdi")
       }
-    } catch {
-      toast.error("Xatolik yuz berdi")
-    } finally {
-      setLoading(false)
-    }
+    })
   }
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogContent>
+      <AlertDialogContent className="max-w-md">
         <AlertDialogHeader>
-          <AlertDialogTitle>Add new Student</AlertDialogTitle>
+          <AlertDialogTitle>Yangi Student qo'shish</AlertDialogTitle>
         </AlertDialogHeader>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-4"
-        >
-          {/* FIRST NAME */}
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <div>
-            <Label>Firstname</Label>
-            <Input
-              {...register("first_name", {
-                required: "Please enter firstname",
-              })}
-              placeholder="Alisher"
-            />
-            {errors.first_name && (
-              <p className="text-red-500 text-sm">
-                {errors.first_name.message}
-              </p>
-            )}
+            <Label>Ism</Label>
+            <Input {...register("first_name", { required: "Ismni kiriting" })} placeholder="Alisher" />
+            {errors.first_name && <p className="text-red-500 text-sm">{errors.first_name.message}</p>}
           </div>
 
-          {/* LAST NAME */}
           <div>
-            <Label>Lastname</Label>
-            <Input
-              {...register("last_name", {
-                required: "Please enter lastname",
-              })}
-              placeholder="Yusupov"
-            />
-            {errors.last_name && (
-              <p className="text-red-500 text-sm">
-                {errors.last_name.message}
-              </p>
-            )}
+            <Label>Familiya</Label>
+            <Input {...register("last_name", { required: "Familiyani kiriting" })} placeholder="Yusupov" />
+            {errors.last_name && <p className="text-red-500 text-sm">{errors.last_name.message}</p>}
           </div>
 
-          {/* PHONE */}
           <div>
             <Label>Telefon Raqam</Label>
-            <Input
-              {...register("phone", {
-                required: "Please enter phone",
-              })}
-              placeholder="+998 77 044 46 46"
-            />
-            {errors.phone && (
-              <p className="text-red-500 text-sm">
-                {errors.phone.message}
-              </p>
-            )}
+            <Input {...register("phone", { required: "Telefonni kiriting" })} placeholder="+998 90 123 45 67" />
+            {errors.phone && <p className="text-red-500 text-sm">{errors.phone.message}</p>}
           </div>
 
-          {/* SEARCH SELECT */}
           <div className="relative" ref={dropdownRef}>
             <Label>Guruhni tanlang</Label>
-
             <Input
               value={search}
               onChange={(e) => {
@@ -232,27 +146,21 @@ export const AlertDialogDemo = ({
             />
 
             {showDropdown && (
-              <div className="absolute z-50 mt-1 w-full max-h-60 overflow-auto rounded-md border bg-white shadow-lg">
+              <div className="absolute z-50 mt-1 w-full max-h-48 overflow-auto rounded-md border bg-white shadow-lg">
                 {filteredCourses.length === 0 ? (
-                  <div className="p-2 text-sm text-muted-foreground">
-                    Guruh topilmadi
-                  </div>
+                  <div className="p-2 text-sm text-muted-foreground text-center">Guruh topilmadi</div>
                 ) : (
                   filteredCourses.map((course) => {
-                    const name =
-                      typeof course.name === "string"
-                        ? course.name
-                        : (course as any)?.name?.name
-
+                    const name = typeof course.name === "string" ? course.name : (course as any)?.name?.name
                     return (
                       <div
                         key={course._id}
                         onClick={() => {
-                          setShowDropdown(false)
                           toggleGroup(course._id)
                           setSearch("")
+                          setShowDropdown(false)
                         }}
-                        className="cursor-pointer px-3 py-2 text-sm hover:bg-gray-100"
+                        className={`cursor-pointer px-3 py-2 text-sm hover:bg-gray-100 ${selectedGroups.includes(course._id) ? "bg-blue-50" : ""}`}
                       >
                         {name}
                       </div>
@@ -263,54 +171,26 @@ export const AlertDialogDemo = ({
             )}
           </div>
 
-          {/* SELECTED GROUPS BOX */}
+          {/* Tanlangan guruhlar */}
           {selectedGroups.length > 0 && (
-            <div className="border rounded-lg p-3 bg-muted/30">
-              <p className="text-sm font-medium mb-2">
-                Tanlangan guruhlar:
-              </p>
-
-              <div className="flex flex-wrap gap-2">
-                {selectedGroups.map((id) => {
-                  const course = courses.find(
-                    (c) => c._id === id
-                  )
-
-                  const name =
-                    typeof course?.name === "string"
-                      ? course.name
-                      : (course as any)?.name?.name
-
-                  return (
-                    <div
-                      key={id}
-                      className="flex items-center gap-2 bg-primary text-white px-3 py-1 rounded-md text-sm"
-                    >
-                      <span>{name}</span>
-
-                      <button
-                        type="button"
-                        onClick={() => toggleGroup(id)}
-                        className="hover:text-red-200"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  )
-                })}
-              </div>
+            <div className="flex flex-wrap gap-2 p-2 border rounded-md bg-gray-50">
+              {selectedGroups.map((id) => {
+                const course = courses.find((c) => c._id === id)
+                const name = typeof course?.name === "string" ? course.name : (course as any)?.name?.name
+                return (
+                  <span key={id} className="flex items-center gap-1 bg-primary text-white px-2 py-1 rounded text-xs">
+                    {name}
+                    <button type="button" onClick={() => toggleGroup(id)} className="hover:text-red-300 ml-1">✕</button>
+                  </span>
+                )
+              })}
             </div>
           )}
 
           <AlertDialogFooter>
-            <AlertDialogCancel
-              type="button"
-              onClick={() => setOpen(false)}
-            >
-              Cancel
-            </AlertDialogCancel>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Submitting..." : "Submit"}
+            <AlertDialogCancel onClick={() => setOpen(false)}>Bekor qilish</AlertDialogCancel>
+            <Button type="submit" disabled={isPending}>
+              {isPending ? "Yuborilmoqda..." : "Qo'shish"}
             </Button>
           </AlertDialogFooter>
         </form>

@@ -23,7 +23,7 @@ import { useGetData } from "@/hooks/useAxios/axios"
 import { LeaveModal } from "./leaveModal"
 import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"
-import { AddToGroup } from "./add_grop"
+import { useEndGroup } from "@/hooks/useQuery/useQueryAction"
 
 interface TableActionsProps {
     data: GroupType[]
@@ -50,18 +50,7 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
 
 
 
-  const EndGroup = async (userId: string) => {
-    try {
-      const res = await getData("group/end-group", "DELETE", {_id: userId} );
-      console.log(res)
-      toast.success("user ishga qaytarildi")
-      onSucess()
-    } catch (err:any) {
-      console.log(err.message);
-    }
-  };
-
-
+  const {mutate} =useEndGroup()
 
 
 
@@ -70,7 +59,6 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
 
   return (
 <>
-            <AddToGroup open={groupModal} setOpen={setGroupModal} onSucess={onSucess} userId={userInfo?._id as string} />
             <LeaveModal open={isLeaveModal} setOpen={setIsLeaveModal} onSucess={onSucess} userId ={userId} />
 <Table className="text-[1rem]">
 
@@ -121,7 +109,7 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
                    <DropdownMenuContent align="end">
                       {!user.is_deleted && 
                                             <DropdownMenuItem onClick={() =>{
-                                              EndGroup(user?._id)
+                                              mutate(user?._id)
                                             }}>
                                             Guruhni tugatish
                                           </DropdownMenuItem>

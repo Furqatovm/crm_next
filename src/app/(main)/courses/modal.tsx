@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useGetData } from "@/hooks/useAxios/axios"
+import { useAddNewCategory } from "@/hooks/useQuery/useQueryAction"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import toast from "react-hot-toast"
@@ -30,6 +31,7 @@ export const AddCategoryModal = ({ open, setOpen, onSucess }: ModalBoolean) => {
   const [loading, setLoading] = useState<boolean>(false)
   const getData = useGetData()
   const role: string = "manager"
+  const {mutate} =useAddNewCategory()
 
   const {
     register,
@@ -38,34 +40,15 @@ export const AddCategoryModal = ({ open, setOpen, onSucess }: ModalBoolean) => {
     formState: { errors },
   } = useForm<FormValues>()
 
-  const onSubmit = async (data: FormValues) => {
-    try {
-      setLoading(true)
-  
-      const res = await getData(
-        "course/create-category",
-        "POST",
-        data
-      )
-  
-      if (res.status !== 201) {
-        toast.error(res.message || "Xatolik yuz berdi")
-        return
+  const onSubmit = async ({name}: FormValues) => {
+    mutate(name, {
+      onSuccess:() =>{
+        reset();
+        setOpen(false)
       }
-  
-      toast.success("Category muvaffaqiyatli qo'shildi")
-      reset()
-      setOpen(false)
-      onSucess()
-  
-    } catch (err: any) {
-      console.log(err)
-      toast.error("Xatolik yuz berdi")
-    } finally {
-      setLoading(false)
-    }
+    })
   }
-
+ 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogContent>

@@ -14,6 +14,8 @@ import { AddCourseModal } from "./add-course"
 import { EditedCourseModal } from "./edit-course"
 import toast from "react-hot-toast"
 import SkeletonCard from "@/genetics/skeleton"
+import { useQueryHandler } from "@/hooks/useAxios/useFetchdata"
+import { useFreezeCourse, useUnfreezeCourse } from "@/hooks/useQuery/useQueryAction"
 
 const Courses = () => {
   const dispatch = useDispatch()
@@ -22,39 +24,15 @@ const Courses = () => {
   const getData = useGetData()
 
   const [loading, setLoading] = useState<boolean>(false)
-  const [data, setData] = useState<CourseType[]>([])
   const [categoryModal, setCategoryModal] = useState<boolean>(false);
   const [courseModal, setCourseModal]= useState<boolean>(false)
   const [editedCourse, setEditedCourse] =useState<boolean>(false);
   const [courseInfo, setCourseInof] =useState<CourseType | null>(null)
 
-  const fetchData = async () => {
-    try {
-      setLoading(true)
-
-      const res = await getData("course/get-courses", "GET")
-
-      if (res?.data) {
-        setData(res.data)
-      } else {
-        setData([])
-      }
-
-    } catch (err: any) {
-      console.log(err)
-
-      if (err.message === "Invalid token") {
-        dispatch(setLogout())
-        router.push("/login")
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchData()
-  }, [])
+  const {data, refetch} =useQueryHandler({
+    url:"course/get-courses",
+    pathname:`all-courses`,
+  })
 
 
   
@@ -66,7 +44,7 @@ const Courses = () => {
       const res = await getData("course/delete-course", "DELETE", {course_id: userId} );
       console.log(res)
       toast.success("user ishga qaytarildi")
-      fetchData()
+      refetch()
     } catch (err:any) {
       console.log(err.message);
       toast.error(`${err.message}`)
@@ -76,35 +54,8 @@ const Courses = () => {
 
   
   
-  const FreezeCourse = async (userId: string) => {
-    if(!userId){
-      return  toast.error("iltimos tanlang")
-    }
-    try {
-      const res = await getData("course/freeze-course", "PUT", {course_id: userId} );
-      console.log(res)
-      toast.success("Kurs muzlatildi")
-      fetchData()
-    } catch (err:any) {
-      console.log(err.message);
-      toast.error(`${err.message}`)
-    }
-  };
-
-  const AntiFreezeCourse = async (userId: string) => {
-    if(!userId){
-      return  toast.error("iltimos tanlang")
-    }
-    try {
-      const res = await getData("course/unfreeze-course", "PUT", {course_id: userId} );
-      console.log(res)
-      toast.success("Kurs qayta ishga tushurildi")
-      fetchData()
-    } catch (err:any) {
-      console.log(err.message);
-      toast.error(`${err.message}`)
-    }
-  };
+  const {mutate:FreezeCourse} =useFreezeCourse()
+  const {mutate:AntiFreezeCourse} =useUnfreezeCourse()
 
 
 
@@ -117,10 +68,10 @@ const Courses = () => {
       <AddCategoryModal
         open={categoryModal}
         setOpen={setCategoryModal}
-        onSucess={() => fetchData()}
+        onSucess={() => refetch()}
       />
-      <AddCourseModal open={courseModal} setOpen={setCourseModal} onSucess={() =>fetchData()} />
-        <EditedCourseModal open={editedCourse} setOpen={setEditedCourse} onSucess={() =>fetchData()} courseInfo={courseInfo} />
+      <AddCourseModal open={courseModal} setOpen={setCourseModal} onSucess={() =>refetch()} />
+        <EditedCourseModal open={editedCourse} setOpen={setEditedCourse} onSucess={() =>refetch()} courseInfo={courseInfo} />
 
       <div className="flex justify-between items-center py-3">
         <h1 className="text-[1.5rem] font-semibold py-2 px-1">
@@ -147,7 +98,7 @@ const Courses = () => {
        return <SkeletonCard key={index} />
       })
       :
-      data.map((val) => (
+      data?.data.map((val:CourseType) => (
         <Card
           key={val._id}
           className="p-7 text-primary flex flex-col justify-between"

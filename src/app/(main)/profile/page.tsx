@@ -1,7 +1,7 @@
 "use client"
 
 import { Card, CardTitle } from "@/components/ui/card"
-import { Calendar, Camera } from "lucide-react"
+import { Calendar, Camera, Loader2 } from "lucide-react"
 import React, { useRef, useState } from "react"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
@@ -10,8 +10,8 @@ import { Button } from "@/components/ui/button"
 import Cookies from "js-cookie"
 import { formatISOToSimpleTime } from "@/@types/@types"
 import { useForm } from "react-hook-form"
-import { useGetData } from "@/hooks/useAxios/axios"
 import toast from "react-hot-toast"
+import { useEditedProfile, useEditedProfileImage } from "@/hooks/useQuery/useQueryAction"
 
 type ProfileFormValues = {
   first_name: string
@@ -20,35 +20,14 @@ type ProfileFormValues = {
 }
 
 const Profile = () => {
-    const getData =useGetData()
+  const { mutate: EditedProfileData, isPending: isSavingInfo } = useEditedProfile();
+  const { mutate: EditedProfileImage, isPending: isUploadingImg } = useEditedProfileImage();
+  
   const fileRef = useRef<HTMLInputElement | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
 
   const userString = Cookies.get("user")
   const user = userString ? JSON.parse(userString) : null
-
-  const EditedProfile = async (data:ProfileFormValues) => {
-    try {
-      const res = await getData("auth/edit-profile", "POST", {...data} );
-      console.log(res)
-      toast.success("user ishga qaytarildi")
-    } catch (err:any) {
-      console.log(err.message);
-    }
-  };
-
-  
-  const EditedImage = async (image:string) => {
-    try {
-      const res = await getData("auth/edit-profile", "POST", {image} );
-      console.log(res)
-      toast.success("user ishga qaytarildi")
-    } catch (err:any) {
-      console.log(err.message);
-    }
-  };
-
-
 
   const { register, handleSubmit } = useForm<ProfileFormValues>({
     defaultValues: {
@@ -59,15 +38,12 @@ const Profile = () => {
   })
 
   const onSubmit = (data: ProfileFormValues) => {
-    console.log("Form data:", data)
-    Cookies.set("user", JSON.stringify({ ...user, ...data }))
-    EditedProfile(data)
-    console.log(data)
-  }
-
-  const handleClick = () => {
-    fileRef.current?.click()
-
+    EditedProfileData(data, {
+      onSuccess: () => {
+        const updatedUser = { ...user, ...data };
+        Cookies.set("user", JSON.stringify(updatedUser));
+      }
+    });
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,16 +52,25 @@ const Profile = () => {
       const imageUrl = URL.createObjectURL(file)
       setPreview(imageUrl)
 
+      const formData = new FormData()
+      formData.append("image", file) 
+
+      EditedProfileImage(formData, {
+        onSuccess: (res: any) => {
+          const newImg = res?.data?.image || imageUrl;
+          const updatedUser = { ...user, image: newImg };
+          Cookies.set("user", JSON.stringify(updatedUser));
+        },
+        onError: () => {
+          setPreview(null);
+        }
+      })
     }
   }
 
-  if (!user) return null
+  const handleClick = () => fileRef.current?.click()
 
-
-
-
-
-  
+  if (!user) return <div className="p-10 text-center">Yuklanmoqda...</div>
 
   return (
     <div className="p-6">
@@ -93,10 +78,10 @@ const Profile = () => {
         <div className="flex justify-between items-center">
           <div className="flex gap-4 items-center">
             <div className="relative">
-              <Avatar className="w-24 h-24">
-                <AvatarImage src={preview || user.image} />
-                <AvatarFallback>
-                  {user.first_name?.[0]}
+              <Avatar className="w-24 h-24 border">
+                <AvatarImage src={preview || user.image} className="object-cover" />
+                <AvatarFallback className="text-xl">
+                  {user.first_name?.[0]}{user.last_name?.[0]}
                 </AvatarFallback>
               </Avatar>
 
@@ -110,10 +95,11 @@ const Profile = () => {
 
               <button
                 type="button"
+                disabled={isUploadingImg}
                 onClick={handleClick}
-                className="absolute bottom-0 right-0 bg-background rounded-full p-2 shadow-md border hover:bg-muted transition"
+                className="absolute bottom-0 right-0 bg-primary text-primary-foreground rounded-full p-2 shadow-md border hover:opacity-90 transition disabled:opacity-50"
               >
-                <Camera size={16} />
+                {isUploadingImg ? <Loader2 className="animate-spin" size={16} /> : <Camera size={16} />}
               </button>
             </div>
 
@@ -121,63 +107,53 @@ const Profile = () => {
               <h2 className="text-2xl font-bold">
                 {user.first_name} {user.last_name}
               </h2>
-
-              <p className="text-muted-foreground">
-                {user.email}
-              </p>
-
-              <div className="flex items-center gap-2 mt-2 text-sm">
+              <p className="text-muted-foreground">{user.email}</p>
+              <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
                 <Calendar size={16} />
-                <span>
-                  Qo'shilgan: {formatISOToSimpleTime(user.createdAt)}
-                </span>
+                <span>Qo'shilgan: {formatISOToSimpleTime(user.createdAt)}</span>
               </div>
             </div>
           </div>
 
-          <div className="px-3 py-1 text-white rounded-md bg-red-600 text-sm">
+          <div className="px-3 py-1 text-white rounded-md bg-red-600 text-sm font-medium uppercase">
             {user.role}
           </div>
         </div>
       </Card>
 
       <Card className="p-6 mt-6">
-        <CardTitle>Profil ma'lumotlari</CardTitle>
-        <span className="text-sm text-muted-foreground">
+        <CardTitle className="mb-1">Profil ma'lumotlari</CardTitle>
+        <p className="text-sm text-muted-foreground mb-6">
           Shaxsiy ma'lumotlaringizni yangilashingiz mumkin.
-        </span>
+        </p>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="grid grid-cols-2 gap-4 mt-6"
-        >
-          <div>
-            <Label className="mb-2">Ism</Label>
-            <Input {...register("first_name")} />
+        <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label>Ism</Label>
+            <Input {...register("first_name", { required: true })} />
           </div>
 
-          <div>
-            <Label className="mb-2">Familya</Label>
-            <Input {...register("last_name")} />
+          <div className="space-y-2">
+            <Label>Familya</Label>
+            <Input {...register("last_name", { required: true })} />
           </div>
 
-          <div>
-            <Label className="mb-2">Email</Label>
-            <Input {...register("email")} />
+          <div className="space-y-2">
+            <Label>Email</Label>
+            <Input {...register("email", { required: true })} type="email" />
           </div>
 
-          <div>
-            <Label className="mb-2">Rol</Label>
-            <Input defaultValue={user.role} />
+          <div className="space-y-2">
+            <Label>Rol (O'zgartirib bo'lmaydi)</Label>
+            <Input defaultValue={user.role} disabled className="bg-muted" />
           </div>
 
-          <div className="col-span-full flex gap-4 justify-end">
+          <div className="col-span-full flex gap-4 justify-end mt-4">
             <Button type="button" variant="outline">
               Parolni o'zgartirish
             </Button>
-
-            <Button type="submit">
-              O'zgaritish
+            <Button type="submit" disabled={isSavingInfo}>
+              {isSavingInfo ? "Saqlanmoqda..." : "O'zgarishlarni saqlash"}
             </Button>
           </div>
         </form>

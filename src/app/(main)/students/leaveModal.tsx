@@ -20,6 +20,7 @@ import toast from "react-hot-toast"
 import { useDispatch } from "react-redux"
 import { useRouter } from "next/navigation"
 import { setLogout } from "@/store/auth-slice"
+import { useLeaveFromGroup } from "@/hooks/useQuery/useQueryAction"
 
 interface ModalProps {
   open: boolean
@@ -40,6 +41,7 @@ export const LeaveModal = ({
   userInfo,
   onSucess,
 }: ModalProps) => {
+  const {mutate} =useLeaveFromGroup()
   const [loading, setLoading] = useState(false)
   const getData = useGetData()
   const dispatch = useDispatch()
@@ -64,32 +66,12 @@ export const LeaveModal = ({
       reason: data.reason,
     }
 
-
-    try {
-      setLoading(true)
-
-      await getData(
-        "student/leave-student",
-        "POST",
-        payload
-      )
-
-      toast.success("Leave muvaffaqiyatli yuborildi")
-      onSucess()
-      reset()
-      setOpen(false)
-
-    } catch (err: any) {
-      console.error(err)
-      toast.error("Xatolik yuz berdi")
-
-      if (err?.message === "Invalid token") {
-        dispatch(setLogout())
-        router.push("/login")
+    mutate(payload, {
+      onSuccess:() =>{
+        setOpen(false)
       }
-    } finally {
-      setLoading(false)
-    }
+    })
+   
   }
 
   return (

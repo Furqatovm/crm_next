@@ -20,6 +20,7 @@ import { useDispatch } from "react-redux"
 import { useRouter } from "next/navigation"
 import { setLogout } from "@/store/auth-slice"
 import { UserType } from "@/@types/@types"
+import { useSetLeaveAdmin } from "@/hooks/useQuery/useQueryAction"
 
 interface ModalProps {
   open: boolean
@@ -40,10 +41,7 @@ export const LeaveModal = ({
   userInfo,
   onSucess,
 }: ModalProps) => {
-  const [loading, setLoading] = useState(false)
-  const getData = useGetData()
-  const dispatch = useDispatch()
-  const router = useRouter()
+  const {mutate, isPending} =useSetLeaveAdmin()
 
   const {
     register,
@@ -64,33 +62,17 @@ export const LeaveModal = ({
       end_date: data.end_date,
       reason: data.reason,
     }
+    mutate(payload, {
+      onSuccess:() =>{
+        toast.success("Success");
+        reset()
+        
+        setOpen(false);
 
-
-    try {
-      setLoading(true)
-
-      await getData(
-        "staff/leave-staff",
-        "POST",
-        payload
-      )
-
-      toast.success("Leave muvaffaqiyatli yuborildi")
-      onSucess()
-      reset()
-      setOpen(false)
-
-    } catch (err: any) {
-      console.error(err)
-      toast.error("Xatolik yuz berdi")
-
-      if (err?.message === "Invalid token") {
-        dispatch(setLogout())
-        router.push("/login")
       }
-    } finally {
-      setLoading(false)
-    }
+    })
+
+  
   }
 
   return (
@@ -105,7 +87,7 @@ export const LeaveModal = ({
           className="flex flex-col gap-4"
         >
           <div>
-            <Label>Boshlanish sanasi</Label>
+            <Label className="my-2">Boshlanish sanasi</Label>
             <Input
               type="date"
               {...register("start_date", {
@@ -120,7 +102,7 @@ export const LeaveModal = ({
           </div>
 
           <div>
-            <Label>Tugash sanasi</Label>
+            <Label className="my-2">Tugash sanasi</Label>
             <Input
               type="date"
               {...register("end_date", {
@@ -135,7 +117,7 @@ export const LeaveModal = ({
           </div>
 
           <div>
-            <Label>Sababi</Label>
+            <Label className="my-2">Sababi</Label>
             <Input
               placeholder="Masalan: Shaxsiy sabab"
               {...register("reason", {
@@ -157,8 +139,8 @@ export const LeaveModal = ({
               Cancel
             </AlertDialogCancel>
 
-            <Button type="submit" disabled={loading}>
-              {loading ? "Yuborilmoqda..." : "Submit"}
+            <Button type="submit" disabled={isPending}>
+              {isPending ? "Yuborilmoqda..." : "Submit"}
             </Button>
           </AlertDialogFooter>
         </form>

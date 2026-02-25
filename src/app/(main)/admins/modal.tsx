@@ -1,5 +1,6 @@
 "use client"
 
+import { UserType } from "@/@types/@types"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -12,7 +13,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useGetData } from "@/hooks/useAxios/axios"
-import { useState } from "react"
+import { useAddNewAdmin } from "@/hooks/useQuery/useQueryAction"
+import { QueryClient, useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import toast from "react-hot-toast"
 
@@ -35,43 +37,27 @@ interface FormValues {
 }
 
 export const AlertDialogDemo = ({ open, setOpen, onSucess }: ModalBoolean) => {
-  const [loading, setLoading] = useState<boolean>(false)
   const getData = useGetData()
   const role: string = "manager"
+  const {mutate, isPending} =useAddNewAdmin()
 
+  const queryClient =useQueryClient()
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm<Omit<FormValues, "role" | "status" | "active" | "is_deleted">>()
 
   const onSubmit = async (data: Omit<FormValues, "role" | "status" | "active" | "is_deleted">) => {
-    const values = {
-      ...data,
-      role,
-    }
-
-    try {
-      setLoading(true)
-      const res = await getData("staff/create-admin", "POST", values)
-      console.log(res)
-      onSucess()
-
-      if (res.status === 403) {
-        toast.error("Xatolik yuz berdi ")
-      } else {
-        toast.success("Manager muvaffaqiyatli qo'shildi")
-        reset()
-        setOpen(false)
-      }
-    } catch (err) {
-      console.log(err)
-      toast.error("Xatolik yuz berdi")
-    } finally {
-      setLoading(false)
-    }
-  }
+    const values = { ...data, role };
+  
+    mutate(values, {
+      onSuccess: (res: any) => {
+        toast.success(res?.message || "Admin qo'shildi");
+        setOpen(false);
+      },
+    });
+  };
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
@@ -106,8 +92,8 @@ export const AlertDialogDemo = ({ open, setOpen, onSucess }: ModalBoolean) => {
               Cancel
             </AlertDialogCancel>
 
-            <Button type="submit" disabled={loading}>
-              {loading ? "Submitting..." : "Submit"}
+            <Button type="submit" disabled={isPending}>
+              {isPending ? "Submitting..." : "Submit"}
             </Button>
           </AlertDialogFooter>
         </form>

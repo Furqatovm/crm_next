@@ -19,6 +19,7 @@ import toast from "react-hot-toast"
 import { useDispatch } from "react-redux"
 import { useRouter } from "next/navigation"
 import { setLogout } from "@/store/auth-slice"
+import { useChangeGroupTime } from "@/hooks/useQuery/useQueryAction"
 
 interface ModalProps {
   open: boolean
@@ -37,6 +38,7 @@ export const LeaveModal = ({
   onSucess,
   userId
 }: ModalProps) => {
+  const {mutate, isPending} =useChangeGroupTime()
   const [loading, setLoading] = useState(false)
   const getData = useGetData()
   const dispatch = useDispatch()
@@ -56,34 +58,9 @@ export const LeaveModal = ({
       _id:userId,
       date:data.date
     }
+    mutate(payload)
 
-
-    try {
-      setLoading(true)
-
-    const res =  await getData(
-        "group/edit-end-group",
-        "PUT",
-        payload
-      )
-      console.log(res)
-
-      toast.success("Leave muvaffaqiyatli yuborildi")
-      onSucess()
-      reset()
-      setOpen(false)
-
-    } catch (err: any) {
-      console.error(err)
-      toast.error("Xatolik yuz berdi")
-
-      if (err?.message === "Invalid token") {
-        dispatch(setLogout())
-        router.push("/login")
-      }
-    } finally {
-      setLoading(false)
-    }
+    
   }
 
   return (
@@ -121,8 +98,8 @@ export const LeaveModal = ({
               Cancel
             </AlertDialogCancel>
 
-            <Button type="submit" disabled={loading}>
-              {loading ? "Yuborilmoqda..." : "Submit"}
+            <Button type="submit" disabled={isPending}>
+              {isPending ? "Yuborilmoqda..." : "Submit"}
             </Button>
           </AlertDialogFooter>
         </form>

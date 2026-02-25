@@ -20,6 +20,8 @@ import { LeaveModal } from "./leaveModal"
 import toast from "react-hot-toast"
 import { InfoModal } from "./infoModal"
 import { UserType } from "@/@types/@types"
+import { EditeAdmins } from "./editeAdmins"
+import { useDeleteAdmin, useReturnWorkStaff } from "@/hooks/useQuery/useQueryAction"
 
 interface TableActionsProps {
     data: UserType[]
@@ -33,6 +35,7 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
   const [isOpenModal, setIsOpenModal] =useState<boolean>(false);
   const [userInfo, setUserInfo] =useState<UserType | null>(null);
   const [infoModal, setInfoModal] =useState<boolean>(false);
+  const [editeAdminModal, setEditedAdminModal] =useState<boolean>(false);
 
   
 
@@ -40,29 +43,9 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
   const getData =useGetData()
 
   console.log(userInfo?.status)
+  const {mutate} =useDeleteAdmin()
 
-  const fetchData = async (userId: string) => {
-    try {
-      const res = await getData("staff/deleted-admin", "DELETE", {_id: userId} );
-      console.log(res)
-      onSucess()
-    } catch (err:any) {
-      console.log(err.message);
-    }
-  };
-
-  const ReturnWorkStaff = async (userId: string) => {
-    try {
-      const res = await getData("staff/return-work-staff", "POST", {_id: userId} );
-      console.log(res)
-      toast.success("user ishga qaytarildi")
-      onSucess()
-    } catch (err:any) {
-      console.log(err.message);
-    }
-  };
-
-
+const {mutate:ReturnMutate} =useReturnWorkStaff();
 
 
 
@@ -70,6 +53,7 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
 <>
             <LeaveModal open={isLeaveModal} setOpen={setIsLeaveModal} onSucess={onSucess} userInfo={userInfo} />
             <InfoModal open={infoModal} setOpen={setInfoModal} userInfo={userInfo} />
+            <EditeAdmins open={editeAdminModal}  setOpen={setEditedAdminModal} onSucess={onSucess} userInfo={userInfo}/>
 <Table className="text-[1rem]">
 
       <TableHeader>
@@ -107,7 +91,7 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
                    <DropdownMenuContent align="end">
        {user?.status === "ishdan bo'shatilgan" ? (
          <>
-           <DropdownMenuItem  onClick={() =>ReturnWorkStaff(user?._id)}>
+           <DropdownMenuItem  onClick={() =>ReturnMutate(user?._id)}>
              Ishga qaytarish
            </DropdownMenuItem>
            <DropdownMenuItem
@@ -122,15 +106,13 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
            <DropdownMenuItem
              onClick={() => {
                setUserInfo(user);
-               setIsOpenModal(true);
+               setEditedAdminModal(true)
              }}
            >
              Tahrirlash
            </DropdownMenuItem>
            <DropdownMenuItem
-             onClick={() => {
-               fetchData(user._id);
-             }}
+            onClick={() =>mutate(user?._id)}
            >
              O'chirish
            </DropdownMenuItem>

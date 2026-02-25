@@ -19,6 +19,7 @@ import { useGetData } from "@/hooks/useAxios/axios"
 import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"
 import { UserType } from "@/@types/@types"
+import { useDeletTeachers, useReturnTeacher } from "@/hooks/useQuery/useQueryAction"
 
 interface TableActionsProps {
     data: UserType[]
@@ -37,32 +38,11 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
   const router =useRouter()
   
 
-  const getData =useGetData()
 
   console.log(userInfo?.status)
 
-  const fetchData = async (userId: string) => {
-    try {
-      const res = await getData("teacher/fire-teacher", "DELETE", {_id: userId} );
-      console.log(res)
-      onSucess()
-    } catch (err:any) {
-      console.log(err.message);
-    }
-  };
-
-  const ReturnWorkStaff = async (userId: string) => {
-    try {
-      const res = await getData("teacher/return-teacher", "POST", {_id: userId} );
-      console.log(res)
-      toast.success("user ishga qaytarildi")
-      onSucess()
-    } catch (err:any) {
-      console.log(err.message);
-    }
-  };
-
-
+ const {mutate} =useDeletTeachers()
+ const {mutate:ReturnTeacher} =useReturnTeacher()
 
 
 
@@ -103,7 +83,7 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
                    <DropdownMenuContent align="end">
        {user?.status === "ishdan bo'shatilgan" ? (
          <>
-           <DropdownMenuItem  onClick={() =>ReturnWorkStaff(user?._id)}>
+           <DropdownMenuItem onClick={() =>ReturnTeacher(user?._id)} >
              Ishga qaytarish
            </DropdownMenuItem>
            <DropdownMenuItem
@@ -116,9 +96,7 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
        ) : (
          <>
            <DropdownMenuItem
-             onClick={() => {
-               fetchData(user._id);
-             }}
+             onClick={() =>mutate(user?._id)}
            >
              O'chirish
            </DropdownMenuItem>

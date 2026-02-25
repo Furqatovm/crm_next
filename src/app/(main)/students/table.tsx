@@ -24,6 +24,7 @@ import { LeaveModal } from "./leaveModal"
 import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"
 import { AddToGroup } from "./add_grop"
+import { useDeletestudents, useReturnFromVacation, useReturnStudent } from "@/hooks/useQuery/useQueryAction"
 
 interface TableActionsProps {
     data: StudentFullType[]
@@ -45,46 +46,12 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
 
   const [isLeaveModal, setIsLeaveModal] =useState<boolean>(false)
   const getData =useGetData()
+  const {mutate:RetrunStudent} =useReturnStudent()
+
+  const {mutate} =useDeletestudents()
 
 
-  const fetchData = async (userId: string) => {
-    try {
-      const res = await getData("student/delete-student", "DELETE", {_id: userId} );
-      console.log(res)
-      onSucess()
-    } catch (err:any) {
-      console.log(err.message);
-    }
-  };
-
-  const ReturnWorkStaff = async (userId: string) => {
-    try {
-      const res = await getData("student/return-student", "POST", {_id: userId} );
-      console.log(res)
-      toast.success("user ishga qaytarildi")
-      onSucess()
-    } catch (err:any) {
-      console.log(err.message);
-    }
-  };
-
-
-
-  const ReturnStudentsFromVacation = async (userId: string) => {
-    try {
-      const res = await getData("student/return-leave-student", "POST", {student_id: userId} );
-      console.log(res)
-      toast.success("user ishga qaytarildi")
-      onSucess()
-    } catch (err:any) {
-      console.log(err.message);
-    }
-  };
-
-
-
-
-
+const {mutate:RetrunFromVocation} =useReturnFromVacation()
   return (
 <>
             <AddToGroup open={groupModal} setOpen={setGroupModal} onSucess={onSucess} userId={userInfo?._id as string} />
@@ -133,7 +100,7 @@ export const TableActions = ({ data, onSucess }: TableActionsProps) => {
          
 <DropdownMenuItem
   onClick={() => {
-    fetchData(user._id);
+    mutate(user?._id)
   }}
 >
   O'chirish
@@ -163,7 +130,7 @@ onClick={() =>router.push(`students/${user?._id}`)}
        ) : user?.status ==="ta'tilda" ? 
        (
         <>
-        <DropdownMenuItem  onClick={() =>ReturnStudentsFromVacation(user?._id)}>
+        <DropdownMenuItem  onClick={() =>RetrunFromVocation(user?._id)}>
           Tatildan Qaytarish
         </DropdownMenuItem>
         <DropdownMenuItem
@@ -174,8 +141,8 @@ onClick={() =>router.push(`students/${user?._id}`)}
        :
        (
         <>
-        <DropdownMenuItem  onClick={() =>ReturnWorkStaff(user?._id)}>
-          Ishga qaytarish
+        <DropdownMenuItem  onClick={() =>RetrunStudent(user?._id)}>
+          O'qishga qaytarish
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() =>router.push(`students/${user?._id}`)}>Info</DropdownMenuItem>
          </>

@@ -16,62 +16,49 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useQueryHandler } from "@/hooks/useAxios/useFetchdata";
 
 export const TeacherProfile = ({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) => {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [data, setData] = useState<StudentFullType>();
 
-  const router = useRouter();
-  const getData = useGetData();
   const resolvedParams = use(params);
   const id = resolvedParams.id;
-  const joinedDate =formatISOToSimpleTime(data?.createdAt as string)
+  const { data, isLoading } = useQueryHandler({
+    url: `student/student/${id}`,
+    pathname: `student-${id}`
+  });
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const res = await getData(`student/student/${id}`, "GET", undefined);
-      setData(res?.data);
-      setLoading(false);
-      console.log(res?.data);
-    } catch (err: any) {
-      console.log(err);
-      if (err.message == "Invalid token") {
-        router.push("/login");
-      }
-    }
-  };
+  const student = data?.data;
+  const joinedDate = student?.createdAt ? formatISOToSimpleTime(student.createdAt) : "Mavjud emas";
 
-  useEffect(() => {
-    fetchData();
-  }, [id]);
+  if (isLoading) return null; // Yuklanish vaqtida xato bermasligi uchun
 
   return (
     <div className="p-6 space-y-6  min-h-screen text-primary">
       <Card>
         <CardContent className="flex items-center justify-between p-6">
           <div className="flex items-center gap-4">
-          <Avatar className="w-25 h-25">
-
-          <AvatarFallback>
-            <span className="text-[1.5rem] font-semibold">{`${data?.first_name?.[0] || ""}${data?.last_name?.[0] || ""}`}</span>
-          </AvatarFallback>
-      </Avatar>
+            <Avatar className="w-25 h-25">
+              <AvatarFallback>
+                <span className="text-[1.5rem] font-semibold">
+                  {`${student?.first_name?.[0] || ""}${student?.last_name?.[0] || ""}`}
+                </span>
+              </AvatarFallback>
+            </Avatar>
 
             <div>
-              <h2 className="text-xl font-semibold">{`${data?.first_name} ${data?.last_name}`}</h2>
+              <h2 className="text-xl font-semibold">{`${student?.first_name || ""} ${student?.last_name || ""}`}</h2>
               <p className="text-primary">
-                Telefon: {(data?.phone)}
+                Telefon: {student?.phone}
               </p>
             </div>
           </div>
 
           <div className="text-right space-y-2">
-            <Badge className="bg-primary">{data?.status}</Badge>
+            <Badge className="bg-primary">{student?.status}</Badge>
             <p className="text-primary">{joinedDate}</p>
           </div>
         </CardContent>
@@ -81,9 +68,10 @@ export const TeacherProfile = ({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>O‘qimoqda</CardTitle>
-            <span className="text-primary text-[1.2rem] font-semibold">1</span>
+            <span className="text-primary text-[1.2rem] font-semibold">
+              {student?.groups?.length || 0}
+            </span>
           </CardHeader>
-
 
           <CardContent className="pt-4">
             <Table>
@@ -95,20 +83,19 @@ export const TeacherProfile = ({
                   <TableHead>Qo‘shilgan</TableHead>
                 </TableRow>
               </TableHeader>
-            {
-              data?.groups?.map((val:StudentGroupType, index :number) =>{
-              return   <TableBody key={val._id} className="text-primary text-[1rem]">
-                <TableRow> 
-                  <TableCell>{index+1}</TableCell>
-                  <TableCell>{val.group.name}</TableCell>
-                  <TableCell className="text-blue-600 font-medium">
-                  {val.status}
-                  </TableCell>
-                  <TableCell>{formatISOToSimpleTime(val.joinedAt)}</TableCell>
-                </TableRow>
+              <TableBody>
+                {student?.groups?.map((val: StudentGroupType, index: number) => (
+                  <TableRow key={val._id} className="text-primary text-[1rem]">
+                    <TableCell>{index + 1}</TableCell>
+                    {/* Xatolik bergan joy: Optional chaining qo'shildi */}
+                    <TableCell>{val?.group?.name || "O'chirilgan"}</TableCell>
+                    <TableCell className="text-blue-600 font-medium">
+                      {val.status}
+                    </TableCell>
+                    <TableCell>{formatISOToSimpleTime(val.joinedAt)}</TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
-              })
-            }
             </Table>
           </CardContent>
         </Card>
@@ -116,9 +103,10 @@ export const TeacherProfile = ({
         <Card className="rounded-2xl shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Tatil tarixi</CardTitle>
-            <span className="text-[1.2rem] font-semibold text-primary">1</span>
+            <span className="text-[1.2rem] font-semibold text-primary">
+              {student?.leave_history?.length || 0}
+            </span>
           </CardHeader>
-
 
           <CardContent className="pt-4">
             <Table>
@@ -131,17 +119,17 @@ export const TeacherProfile = ({
                   <TableHead>Tugagan</TableHead>
                 </TableRow>
               </TableHeader>
-              {data?.leave_history.map((val :LeaveHistoryType, index:number) =>{
-                return <TableBody key={val._id} className="text-primary text-[1rem]">
-                <TableRow>
-                  <TableCell>{index+1}</TableCell>
-                  <TableCell>{val.days}</TableCell>
-                  <TableCell>{val.reason}</TableCell>
-                  <TableCell>{formatISOToSimpleTime(val.start_date)}</TableCell>
-                  <TableCell>{formatISOToSimpleTime(val.end_date)}</TableCell>
-                </TableRow>
+              <TableBody>
+                {student?.leave_history?.map((val: LeaveHistoryType, index: number) => (
+                  <TableRow key={val._id} className="text-primary text-[1rem]">
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{val.days}</TableCell>
+                    <TableCell>{val.reason}</TableCell>
+                    <TableCell>{formatISOToSimpleTime(val.start_date)}</TableCell>
+                    <TableCell>{formatISOToSimpleTime(val.end_date)}</TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
-              })}
             </Table>
           </CardContent>
         </Card>
